@@ -1,0 +1,9 @@
+{
+  "name":"dayflow-push-server",
+  "version":"1.0.0",
+  "private":true,
+  "description":"Push notification server for DayFlow",
+  "main":"server.js",
+  "scripts":{"start":"node server.js"},
+  "dependencies":{"cors":"^2.8.5","express":"^5.1.0","web-push":"^3.6.7"}
+}

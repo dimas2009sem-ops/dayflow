@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d12"><meta name="application-name" content="DayFlow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>DayFlow — планувальник</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230b0d12'/%3E%3Cpath d='M25 55h15l8-20 10 35 7-15h10' fill='none' stroke='%237c5cff' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#090b10;--panel:#11141c;--panel2:#171b25;--text:#f5f7fb;--muted:#8c94a7;--line:#242a38;--accent:#7c5cff;--accent2:#5ee7c5;--danger:#ff647c;--shadow:0 18px 60px #0008}
+*{box-sizing:border-box}html,body{margin:0;background:radial-gradient(circle at 50% -10%,#22203b 0,#090b10 42%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;min-height:100%}
+button,input,select,textarea{font:inherit}button{border:0;color:inherit;cursor:pointer}.app{max-width:760px;margin:auto;min-height:100vh;padding:22px 16px 100px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.brand{font-size:25px;font-weight:800;letter-spacing:-.6px}.brand span{color:var(--accent)}
+.iconbtn{width:42px;height:42px;border-radius:14px;background:#ffffff0b;border:1px solid #ffffff0c;display:grid;place-items:center;font-size:18px}
+.view{display:block;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(10px);position:absolute;inset:0;transition:opacity .28s ease,transform .28s ease,visibility 0s linear .28s}.view.active{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0);position:relative;transition:opacity .28s ease,transform .28s ease,visibility 0s linear 0s}.hero{padding:4px 2px 18px}.eyebrow{color:var(--muted);font-size:13px}.hero h1{margin:5px 0 5px;font-size:31px;letter-spacing:-1px}.hero p{color:var(--muted);margin:0;line-height:1.45}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.card{background:linear-gradient(145deg,#151925,#10131b);border:1px solid var(--line);border-radius:22px;padding:17px;box-shadow:0 10px 35px #0003}.progress-card{display:flex;align-items:center;gap:15px}.ring{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) var(--p),#2a2e3a 0);position:relative;flex:none}.ring:after{content:"";position:absolute;inset:7px;border-radius:50%;background:#11141c}.ring b{z-index:1;font-size:16px}.stat-title{font-size:13px;color:var(--muted)}.stat-value{font-size:22px;font-weight:800;margin-top:3px}.streak{display:flex;align-items:center;gap:13px}.fire{font-size:29px}.section-title{display:flex;justify-content:space-between;align-items:center;margin:22px 2px 10px;font-size:17px;font-weight:750}.small{font-size:12px;color:var(--muted);font-weight:500}
+.tasks{display:flex;flex-direction:column;gap:9px}.task{display:grid;grid-template-columns:24px 58px minmax(0,1fr) 38px;align-items:center;gap:10px;padding:13px 12px;background:#11141b;border:1px solid var(--line);border-radius:18px;transition:.18s transform,.18s opacity,.18s border-color;user-select:none}.task.dragging{opacity:.4;transform:scale(.98);border-color:var(--accent)}.task.over{border-color:var(--accent2);box-shadow:0 0 0 1px var(--accent2) inset}.time{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}.task-name{font-weight:700}.meta{font-size:12px;color:var(--muted);margin-top:3px}.check{width:27px;height:27px;border-radius:50%;border:2px solid #4a5265;background:transparent;display:grid;place-items:center;font-size:14px}.check.done{background:var(--accent);border-color:var(--accent)}.task.done .task-name{text-decoration:line-through;color:#7d8495}.drag-handle{color:#5f6678;font-size:16px;line-height:1;text-align:center;cursor:grab}.task-time{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}.task-main{min-width:0}.task-name,.task-meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.check{margin:0;justify-self:end;flex-shrink:0}
+.submit-wrap{margin-top:14px}.submit-btn{width:100%;padding:15px 16px;border-radius:17px;background:linear-gradient(135deg,var(--accent),#5c8cff);font-weight:800;box-shadow:0 12px 30px #7c5cff35;transition:.18s;user-select:none;-webkit-user-select:none;touch-action:manipulation}.submit-btn:disabled{opacity:.38;cursor:not-allowed;box-shadow:none;background:#2a2e3a}.submit-btn.submitted{background:#19382f;border:1px solid #2b6a59;color:var(--accent2);box-shadow:none}.cancel-submit{width:100%;margin-top:8px;padding:12px 14px;border-radius:14px;background:#2a1118;color:#ff8da0;border:1px solid #4a202b;font-weight:750}.submit-hint{text-align:center;color:var(--muted);font-size:11px;margin-top:7px}
+.add{width:100%;padding:15px;border-radius:17px;background:linear-gradient(135deg,var(--accent),#5c8cff);font-weight:800;margin-top:12px;box-shadow:0 12px 30px #7c5cff35}.empty{text-align:center;padding:35px 15px;color:var(--muted);border:1px dashed #313747;border-radius:18px}
+.bottom{position:fixed;z-index:20;left:50%;bottom:12px;transform:translateX(-50%);width:min(728px,calc(100% - 24px));display:grid;grid-template-columns:repeat(5,1fr);padding:7px;background:#11141ddd;backdrop-filter:blur(22px);border:1px solid #ffffff12;border-radius:22px;box-shadow:var(--shadow)}.nav{padding:8px 3px;border-radius:16px;background:transparent;color:#7e8699;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:4px}.nav b{font-size:19px;font-weight:500}.nav.active{color:#fff;background:#ffffff0c}
+.toolbar{display:flex;gap:8px;margin:10px 0 14px}.pill{background:#ffffff08;border:1px solid var(--line);padding:9px 12px;border-radius:12px;color:var(--muted);font-size:12px}.weekgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin:15px 0}.calendar-head{display:flex;align-items:center;justify-content:space-between;margin:12px 0}.month-title{font-size:18px;font-weight:800;text-transform:capitalize}.month-nav{display:flex;gap:7px}.month-nav button{width:42px;height:42px;border-radius:13px;background:#ffffff08;border:1px solid var(--line);color:#fff;font-size:18px}.calendar-week{display:grid;grid-template-columns:32px repeat(7,1fr);gap:5px;align-items:stretch;margin-bottom:6px}.calendar-week.selected{background:#ffffff05;border-radius:15px;outline:1px solid #634ed044}.week-num{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px}.cal-day{min-height:58px;border-radius:12px;background:#11141b;border:1px solid var(--line);color:#fff;padding:7px 5px;text-align:center;cursor:pointer}.cal-day.muted{opacity:.35}.cal-day.today{border-color:var(--accent)}.cal-day.selected{background:#2a214f;border-color:#634ed0}.cal-day.submitted{background:#16382f;border-color:#39c98a;color:#bfffe1}.cal-day.submitted strong{color:#bfffe1}.cal-day.submitted span{color:#8ee8bf}.cal-day.submitted.selected{background:#1d4a3d;border-color:#4be0a0}.cal-day strong{display:block;font-size:14px}.cal-day span{display:block;font-size:9px;color:var(--muted);margin-top:4px}.week-selected-note{margin-top:10px;padding:11px 13px;border-radius:13px;background:#ffffff06;border:1px solid var(--line);font-size:12px;color:var(--muted)}.day{padding:10px 3px;border-radius:14px;text-align:center;background:#11141b;border:1px solid var(--line);cursor:pointer}.day.sel{background:#2a214f;border-color:#634ed0}.day.submitted{background:#16382f;border-color:#39c98a;color:#bfffe1}.day.submitted.sel{background:#1d4a3d;border-color:#4be0a0}.day strong{display:block;font-size:15px}.day span{font-size:11px;color:var(--muted)}.weektask{display:flex;gap:11px;align-items:center;padding:12px;border-bottom:1px solid var(--line)}.weektask:last-child{border:0}.dot{width:9px;height:9px;border-radius:50%;background:var(--accent)}.journal-row{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid var(--line)}.bar{height:8px;background:#252a36;border-radius:10px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:inherit}
+.analytics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:14px 0}.analytics-stat{padding:16px}.analytics-stat .big{font-size:27px;font-weight:850;margin-top:4px}.analytics-stat .hint{font-size:11px;color:var(--muted);margin-top:4px}.analytics-chart{display:flex;align-items:flex-end;gap:7px;height:150px;margin-top:14px;padding:8px 4px 0}.analytics-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;min-width:0}.analytics-bar-wrap{height:105px;width:100%;display:flex;align-items:flex-end;justify-content:center}.analytics-bar{width:min(28px,72%);min-height:4px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,var(--accent2),var(--accent))}.analytics-col b{font-size:10px;color:var(--muted)}.analytics-col span{font-size:10px;color:var(--muted)}.analytics-list{display:grid;gap:9px;margin-top:12px}.analytics-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:13px;background:#ffffff04}.analytics-row .name{font-weight:700}.analytics-row .sub{font-size:11px;color:var(--muted);margin-top:3px}.analytics-row .value{font-weight:800}.analytics-empty{padding:22px 8px;text-align:center;color:var(--muted)}.language-select{width:100%;margin-top:10px;background:#0b0e14;color:#fff;border:1px solid var(--line);border-radius:13px;padding:12px;outline:none}.language-select:focus{border-color:var(--accent)}
+
+.language-gate{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(circle at 50% 10%,#282346 0,#090b10 55%);transition:opacity .35s ease,visibility .35s ease}.language-gate.hidden{opacity:0;visibility:hidden;pointer-events:none}.language-card{width:min(430px,100%);padding:28px;border:1px solid var(--line);border-radius:26px;background:linear-gradient(145deg,#151925,#10131b);box-shadow:0 24px 80px #0009;text-align:center}.language-logo{width:58px;height:58px;margin:0 auto 18px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#5c8cff);font-size:25px;font-weight:900}.language-card h1{margin:0;font-size:26px;letter-spacing:-.6px}.language-card p{margin:9px 0 22px;color:var(--muted);line-height:1.45}.language-options{display:grid;gap:10px}.language-option{width:100%;padding:15px 16px;border-radius:15px;background:#ffffff08;border:1px solid var(--line);font-weight:750;text-align:left;transition:.18s}.language-option:hover{border-color:var(--accent);background:#ffffff0d;transform:translateY(-1px)}.language-option span{float:right;color:var(--muted);font-weight:500}
+.danger{color:#ff7f91;border-color:#5a222b;background:#2a1116}.mini-btn{width:34px;height:34px;border-radius:10px;background:#ffffff08;border:1px solid var(--line)}.mini-btn.done{background:#19382f;color:var(--accent2);border-color:#2b6a59}.water-row{display:flex;align-items:center;gap:10px}.water-count{font-size:24px;font-weight:800}.water-controls{display:flex;gap:7px;flex-wrap:wrap}.water-controls button{padding:9px 11px;border-radius:11px;background:#ffffff08;border:1px solid var(--line)}.settings-item{padding:16px 0;border-bottom:1px solid var(--line)}.settings-item label{display:block;font-weight:700;margin-bottom:5px}.settings-item p{margin:0;color:var(--muted);font-size:13px;line-height:1.4}.profile-card{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;background:#ffffff06;border:1px solid var(--line);cursor:pointer}.profile-avatar{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#5c8cff);font-size:21px;font-weight:800}.profile-info{flex:1;min-width:0}.profile-name{font-size:17px;font-weight:800}.profile-sub{font-size:12px;color:var(--muted);margin-top:3px}.profile-arrow{color:var(--muted);font-size:20px}.auth-form{display:grid;gap:12px;margin-top:14px}.auth-form .field{margin:0}.profile-details{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.profile-stat{padding:12px;border-radius:14px;background:#ffffff06;border:1px solid var(--line)}.profile-stat b{display:block;font-size:16px}.profile-stat span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.auth-note{font-size:12px;color:var(--muted);line-height:1.4;margin:10px 0 0}.profile-actions{display:flex;gap:8px;margin-top:12px}.profile-actions button{flex:1}.danger{background:#2a1118;color:#ff8da0;border:1px solid #4a202b;padding:12px 14px;border-radius:13px;margin-top:14px}
+.modal{position:fixed;inset:0;background:#0000;z-index:50;display:flex;align-items:flex-end;justify-content:center;padding:12px;visibility:hidden;pointer-events:none;transition:background .25s ease,visibility 0s linear .28s}.modal.open{background:#0009;visibility:visible;pointer-events:auto;transition:background .25s ease,visibility 0s linear 0s}.modal .sheet{transform:translateY(24px);opacity:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .22s ease}.modal.open .sheet{transform:translateY(0);opacity:1}.sheet{width:min(720px,100%);background:#12151e;border:1px solid var(--line);border-radius:25px;padding:18px;box-shadow:var(--shadow);max-height:92vh;overflow:auto}.sheet h2{margin:4px 0 18px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:7px;margin-bottom:11px}.field.full{grid-column:1/-1}.field label{font-size:12px;color:var(--muted)}.field input,.field select,.field textarea{width:100%;background:#0b0e14;color:#fff;border:1px solid var(--line);border-radius:13px;padding:12px;outline:none}.field textarea{min-height:80px;resize:vertical}.actions{display:flex;gap:9px;margin-top:15px}.actions button{flex:1;padding:13px;border-radius:14px;font-weight:700}.cancel{background:#ffffff09;border:1px solid var(--line)}.save{background:var(--accent)}.delete{background:#32131a;color:#ff91a2}
+.toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);background:#fff;color:#0a0c10;padding:11px 15px;border-radius:13px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:80}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:520px){.app{padding-top:15px}.stats{grid-template-columns:1fr}.hero h1{font-size:28px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.task{grid-template-columns:22px 52px minmax(0,1fr) 34px}}
+
+.auth-gate{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% -10%,#22203b 0,#090b10 55%);display:grid;place-items:center;padding:20px}.auth-gate.hidden{display:none}.auth-gate-card{width:min(520px,100%);background:linear-gradient(145deg,#151925,#10131b);border:1px solid var(--line);border-radius:26px;padding:24px;box-shadow:var(--shadow)}.auth-gate-card h1{margin:0 0 7px;font-size:30px}.auth-gate-card p{color:var(--muted);line-height:1.45;margin:0 0 20px}.auth-gate-brand{font-weight:900;font-size:22px;margin-bottom:24px}.auth-gate-brand span{color:var(--accent)}
+
+/* Push notifications */
+.notification-card{margin-top:12px}.notification-status{display:flex;align-items:center;justify-content:space-between;gap:12px}.notification-badge{font-size:12px;padding:6px 9px;border-radius:999px;background:#ffffff0b;color:var(--muted);white-space:nowrap}.notification-badge.on{color:#7ee2a8;background:#143522}.notification-badge.off{color:#ffb3b3;background:#3a1919}.notification-help{margin:5px 0 12px}.notification-actions{display:flex;gap:8px;flex-wrap:wrap}.notification-actions button{flex:1;min-width:170px}
+</style>
+</head>
+<body>
+<div class="language-gate hidden" id="languageGate" aria-modal="true" role="dialog">
+  <div class="language-card">
+    <div class="language-logo">D</div>
+    <h1 id="languageGateTitle">Оберіть мову</h1>
+    <p id="languageGateSubtitle">Оберіть мову інтерфейсу застосунку. Ви зможете змінити її пізніше в налаштуваннях.</p>
+    <div class="language-options">
+      <button class="language-option" data-first-language="uk">Українська <span>UA</span></button>
+      <button class="language-option" data-first-language="ru">Русский <span>RU</span></button>
+      <button class="language-option" data-first-language="en">English <span>EN</span></button>
+    </div>
+  </div>
+</div>
+<div class="auth-gate" id="authGate">
+  <div class="auth-gate-card">
+    <div class="auth-gate-brand">Day<span>Flow</span></div>
+    <h1>Створи обліковий запис</h1>
+    <p>Щоб користуватися застосунком, спочатку заповни дані про себе. Це займе менше хвилини.</p>
+    <form id="gateProfileForm" class="auth-form">
+      <div class="field"><label>Як до тебе звертатися</label><input id="gName" type="text" placeholder="Наприклад, Діма" maxlength="40" required></div>
+      <div class="formgrid">
+        <div class="field"><label>Вага, кг</label><input id="gWeight" type="number" min="20" max="300" step="0.1" placeholder="70" required></div>
+        <div class="field"><label>Зріст, см</label><input id="gHeight" type="number" min="80" max="250" step="1" placeholder="180" required></div>
+      </div>
+      <button class="add" type="submit">Створити обліковий запис і увійти</button>
+    </form>
+  </div>
+</div>
+
+<div class="app">
+  <header class="top"><div class="brand">Day<span>Flow</span></div><button class="iconbtn" id="openSettingsTop" aria-label="Налаштування">⚙</button></header>
+
+  <main id="today" class="view active">
+    <section class="hero"><div class="eyebrow" id="todayDate"></div><h1>Сьогодні — твій день 👋</h1><p>Зроби його кращим за вчора.</p></section>
+    <section class="stats" id="todayStats"></section>
+    <div class="card" style="margin-top:18px;text-align:center">
+      <div class="stat-title">План завдань на тиждень</div>
+      <p class="small" style="margin:8px 0 14px">Завдання тепер зручно планувати заздалегідь у розділі «Тиждень».</p>
+      <button class="add" id="openWeekFromToday" style="margin:0">▦ Відкрити тиждень</button>
+    </div>
+  </main>
+
+  <main id="week" class="view">
+    <section class="hero"><div class="eyebrow">Планування</div><h1>Тиждень</h1><p>Обраний тиждень: <b id="weekRange">—</b></p></section>
+    <div id="weekDays" class="weekgrid"></div>
+    <div class="card"><div class="section-title" style="margin-top:0"><span id="selectedDayTitle">Сьогодні</span><span class="small" id="selectedDayProgress"></span></div><div id="weekTasks"></div><button class="add" id="addWeekTask">＋ Додати завдання на цей день</button></div>
+  </main>
+
+  <main id="calendar" class="view">
+    <section class="hero"><div class="eyebrow">Планування</div><h1>Календар</h1><p>Обери тиждень заздалегідь — його буде одразу відкрито в розділі «Тиждень».</p></section>
+    <div class="card">
+      <div class="calendar-head"><div class="month-title" id="calendarMonthTitle"></div><div class="month-nav"><button type="button" id="prevMonth" aria-label="Попередній місяць">‹</button><button type="button" id="nextMonth" aria-label="Наступний місяць">›</button></div></div>
+      <div class="calendar-week" style="margin-bottom:8px"><div class="week-num">№</div><div class="small" style="text-align:center">Пн</div><div class="small" style="text-align:center">Вт</div><div class="small" style="text-align:center">Ср</div><div class="small" style="text-align:center">Чт</div><div class="small" style="text-align:center">Пт</div><div class="small" style="text-align:center">Сб</div><div class="small" style="text-align:center">Вс</div></div>
+      <div id="calendarGrid"></div>
+      <div class="week-selected-note" id="calendarSelectedWeek"></div>
+    </div>
+  </main>
+
+  <main id="analytics" class="view">
+    <section class="hero"><div class="eyebrow">Прогрес</div><h1>Аналітика</h1><p>Показує, як ти виконуєш завдання за днями та тижнями.</p></section>
+    <div class="toolbar"><button class="pill" id="analyticsWeekPrev">‹ Попередня</button><button class="pill" id="analyticsWeekCurrent">Поточний тиждень</button><button class="pill" id="analyticsWeekNext">Наступна ›</button></div>
+    <div class="card"><div class="section-title" style="margin-top:0"><span id="analyticsWeekTitle">—</span><span class="small" id="analyticsWeekPercent">0%</span></div><div class="analytics-chart" id="analyticsChart"></div></div>
+    <section class="analytics-grid">
+      <div class="card analytics-stat"><div class="stat-title">Виконано</div><div class="big" id="analyticsDone">0</div><div class="hint" id="analyticsDoneHint">із 0 завдань</div></div>
+      <div class="card analytics-stat"><div class="stat-title">Успішність</div><div class="big" id="analyticsPercent">0%</div><div class="hint">за обраний тиждень</div></div>
+      <div class="card analytics-stat"><div class="stat-title">Найкращий день</div><div class="big" id="analyticsBestDay">—</div><div class="hint" id="analyticsBestDayHint">поки немає даних</div></div>
+      <div class="card analytics-stat"><div class="stat-title">Здано днів</div><div class="big" id="analyticsSubmitted">0</div><div class="hint">в обраному тижні</div></div>
+    </section>
+    <div class="card"><div class="section-title" style="margin-top:0"><span>Категорії</span><span class="small">виконання</span></div><div class="analytics-list" id="analyticsCategories"></div></div>
+    <div class="card" style="margin-top:12px"><div class="section-title" style="margin-top:0"><span>Завдання, які найчастіше пропускають</span></div><div class="analytics-list" id="analyticsMissed"></div></div>
+  </main>
+
+  <main id="journal" class="view">
+    <section class="hero"><div class="eyebrow">Історія</div><h1>Щоденник</h1><p>Твоя статистика виконання завдань.</p></section>
+    <div class="card" id="journalCard"></div>
+  </main>
+
+  <main id="settings" class="view">
+    <section class="hero"><div class="eyebrow">Обліковий запис</div><h1>Налаштування</h1><p>Тут можна зберегти дані про себе та швидко переглянути свої показники.</p></section>
+    <div class="card" id="profileCard"></div>
+    <div class="card" style="margin-top:12px">
+      <div class="settings-item"><label>Мова</label><p>Оберіть мову інтерфейсу застосунку.</p><select id="languageSelect" class="language-select"><option value="uk">Українська</option><option value="ru">Русский</option><option value="en">English</option></select></div>
+      <div class="settings-item"><label>Тема</label><p>Зараз використовується темна тема.</p></div>
+      <div class="settings-item"><label>Зберігання</label><p>Дані облікового запису, завдання та історія зберігаються локально на цьому пристрої.</p></div>
+    </div>
+    <div class="card notification-card">
+      <div class="notification-status"><div><label id="notificationTitle">Нагадування про завдання</label><p id="notificationDescription" class="notification-help">Push-нагадування потребують інтернету. Завдання залишаються доступними офлайн після першого завантаження.</p></div><span id="notificationBadge" class="notification-badge off">Вимкнено</span></div>
+      <div class="notification-actions"><button class="add" id="enableNotifications">Увімкнути сповіщення</button><button class="secondary" id="disableNotifications" style="display:none">Вимкнути</button><button class="secondary" id="testNotifications" style="display:none">Надіслати тест</button></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <button class="danger" id="reset">Скинути всі дані</button>
+    </div>
+  </main>
+</div>
+
+<nav class="bottom">
+  <button class="nav active" data-view="today"><b>⌂</b>Сьогодні</button>
+  <button class="nav" data-view="week"><b>▦</b>Тиждень</button>
+  <button class="nav" data-view="calendar"><b>▣</b>Календар</button>
+  <button class="nav" data-view="analytics"><b>◔</b>Аналітика</button><button class="nav" data-view="journal"><b>◷</b>Щоденник</button>
+</nav>
+
+<div class="modal" id="profileModal"><form class="sheet" id="profileForm">
+  <h2 id="profileModalTitle">Вхід</h2>
+  <p class="small" style="margin:-5px 0 14px">Заповни дані один раз — вони збережуться на цьому пристрої.</p>
+  <div class="auth-form">
+    <div class="field"><label>Як до тебе звертатися</label><input id="pName" type="text" placeholder="Наприклад, Діма" maxlength="40" required></div>
+    <div class="formgrid">
+      <div class="field"><label>Вага, кг</label><input id="pWeight" type="number" min="20" max="300" step="0.1" placeholder="70"></div>
+      <div class="field"><label>Зріст, см</label><input id="pHeight" type="number" min="80" max="250" step="1" placeholder="180"></div>
+    </div>
+    <button class="add" type="submit" id="saveProfile">Зберегти обліковий запис</button>
+    <button class="secondary" type="button" id="closeProfileModal">Скасувати</button>
+  </div>
+</form></div>
+
+<div class="modal" id="modal"><form class="sheet" id="taskForm">
+  <h2 id="modalTitle">Нове завдання</h2>
+  <div class="formgrid">
+    <div class="field"><label>Час</label><input id="fTime" type="time" required></div>
+    <div class="field"><label>Категорія</label><select id="fCategory"><option>Тренування</option><option>Навчання</option><option>Здоров’я</option><option>Звичка</option><option>Відпочинок</option><option>Інше</option></select></div>
+    <div class="field full"><label>Назва</label><input id="fTitle" placeholder="Наприклад, тренування" required></div>
+    <div class="field full"><label>Нотатка</label><textarea id="fNote" placeholder="Додаткова інформація"></textarea></div>
+  </div>
+  <div id="copyDayTools" style="margin-top:15px;padding-top:15px;border-top:1px solid var(--line)">
+    <button type="button" class="secondary" id="openCopyDay" style="width:100%;padding:12px;border-radius:14px">📋 Копіювати день</button>
+    <div id="copyDayPanel" style="display:none;margin-top:10px;padding:12px;background:#ffffff06;border:1px solid var(--line);border-radius:16px">
+      <div class="small" style="margin-bottom:9px">Усі завдання з вибраного дня буде повністю скопійовано на інший день. Початковий день залишиться без змін.</div>
+      <div class="field"><label>Копіювати завдання з дня</label><input id="copySourceDate" type="date"></div>
+      <div class="field"><label>На день</label><input id="copyTargetDate" type="date"></div>
+      <div class="actions" style="margin-top:0"><button type="button" class="cancel" id="cancelCopyDay">Скасувати</button><button type="button" class="save" id="copyDayBtn">Копіювати день</button></div>
+    </div>
+  </div>
+  <div id="taskMoveTools" style="display:none;margin-top:15px;padding-top:15px;border-top:1px solid var(--line)">
+    <div class="field" style="margin-bottom:9px"><label>День, на який перенести або скопіювати</label><input id="moveDate" type="date"></div>
+    <div class="actions" style="margin-top:0"><button type="button" class="cancel" id="copyTaskBtn">Копіювати на день</button><button type="button" class="save" id="moveTaskBtn">Перенести на день</button></div>
+  </div>
+  <div class="actions"><button type="button" class="cancel" id="closeModal">Скасувати</button><button type="submit" class="save">Зберегти</button></div>
+  <button type="button" class="delete" id="deleteTask" style="display:none;width:100%;margin-top:9px;padding:12px;border-radius:14px">Видалити завдання</button>
+</form></div>
+<div class="toast" id="toast"></div>
+<script>
+const KEY='myfitness_v5';
+const todayKey=()=>{const d=new Date();const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`};
+let state=JSON.parse(localStorage.getItem(KEY)||'null')||{days:{},history:{},streak:0}; const hadSavedLanguage=!!(state && (state.languageSelected===true || typeof state.language==='string')); state.profile=state.profile||null; state.submitted=state.submitted||{}; state.language=state.language||'uk'; state.languageSelected = hadSavedLanguage;
+const LANGS={uk:'uk-UA',ru:'ru-RU',en:'en-US'};
+const PUSH_DEVICE_KEY='dayflow_push_device_v1';
+const PUSH_API_BASE='';
+const PUSH_PUBLIC_KEY_FALLBACK='BB23ACMmVMuepdR9WfVdqrAPto6FO0UhFt3Ckhf7Gg7HN_tMdlF2dSLHo4BnVwYX1dU820Se_DuiHI-gov5nYBU';
+let pushConfig=null;
+function pushDeviceId(){let id=localStorage.getItem(PUSH_DEVICE_KEY);if(!id){id=crypto.randomUUID();localStorage.setItem(PUSH_DEVICE_KEY,id)}return id}
+function urlBase64ToUint8Array(base64String){const padding='='.repeat((4-base64String.length%4)%4);const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');const raw=atob(base64);return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)))}
+async function getPushConfig(){if(pushConfig)return pushConfig;try{const r=await fetch(PUSH_API_BASE+'/api/config',{cache:'no-store'});if(r.ok)pushConfig=await r.json()}catch(e){};return pushConfig||{publicKey:PUSH_PUBLIC_KEY_FALLBACK}}
+function notificationSupported(){return 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window && location.protocol!=='file:'}
+async function registerPush(){if(!notificationSupported())throw new Error('unsupported');const permission=await Notification.requestPermission();if(permission!=='granted')throw new Error('permission');const reg=await navigator.serviceWorker.ready;const cfg=await getPushConfig();let sub=await reg.pushManager.getSubscription();if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(cfg.publicKey)});await fetch(PUSH_API_BASE+'/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deviceId:pushDeviceId(),subscription:sub.toJSON(),language:state.language})});await syncPushTasks();renderNotificationSettings();toast(t('Сповіщення увімкнено ✓','Уведомления включены ✓','Notifications enabled ✓'))}
+async function syncPushTasks(){if(!notificationSupported())return;const reg=await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();if(!sub)return;const tasks=[];Object.entries(state.days||{}).forEach(([date,arr])=>(arr||[]).forEach(t=>{if(t&&!t.done&&t.time&&t.title)tasks.push({id:t.id,date,time:t.time,title:t.title,note:t.note||''})}));try{const r=await fetch(PUSH_API_BASE+'/api/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deviceId:pushDeviceId(),subscription:sub.toJSON(),language:state.language,timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,tasks})});if(!r.ok)console.error('DayFlow task sync failed',r.status,await r.text())}catch(e){console.error('DayFlow task sync failed',e)}}
+async function testPushNow(){const btn=document.getElementById('testNotifications');if(btn)btn.disabled=true;try{const r=await fetch(PUSH_API_BASE+'/api/test-push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deviceId:pushDeviceId()})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||`HTTP ${r.status}`);toast(t('Тестове сповіщення надіслано','Тестовое уведомление отправлено','Test notification sent'));}catch(e){console.error('DayFlow test push failed',e);toast(t('Помилка тесту: ','Ошибка теста: ','Test failed: ')+(e.message||'unknown'))}finally{if(btn)btn.disabled=false}}
+async function disablePush(){if(!notificationSupported())return;const reg=await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();try{if(sub)await fetch(PUSH_API_BASE+'/api/unsubscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deviceId:pushDeviceId(),endpoint:sub.endpoint})})}catch(e){};if(sub)await sub.unsubscribe();renderNotificationSettings();toast(t('Сповіщення вимкнено','Уведомления выключены','Notifications disabled'))}
+async function renderNotificationSettings(){const badge=document.getElementById('notificationBadge'),on=document.getElementById('enableNotifications'),off=document.getElementById('disableNotifications'),test=document.getElementById('testNotifications');if(!badge||!on||!off)return;let active=false;if(notificationSupported()){try{const sub=await (await navigator.serviceWorker.ready).pushManager.getSubscription();active=!!sub&&Notification.permission==='granted'}catch(e){}}badge.textContent=active?t('Увімкнено','Включено','Enabled'):t('Вимкнено','Выключено','Off');badge.classList.toggle('on',active);badge.classList.toggle('off',!active);on.style.display=active?'none':'';off.style.display=active?'':'none';if(test){test.style.display=active?'':'none';test.textContent=t('Надіслати тест','Отправить тест','Send test');test.onclick=testPushNow}on.onclick=async()=>{try{await registerPush()}catch(e){toast(t('Не вдалося увімкнути сповіщення','Не удалось включить уведомления','Could not enable notifications'))}};off.onclick=disablePush}
+
+const t=(uk,ru,en)=>({uk,ru,en})[state.language]||uk;
+function trDate(d,opts){return new Intl.DateTimeFormat(LANGS[state.language],opts).format(new Date(d+'T12:00:00'))}
+function trWeekday(d){return new Intl.DateTimeFormat(LANGS[state.language],{weekday:'short',timeZone:'UTC'}).format(dateObj(d)).replace('.','')}
+function setLanguage(lang){if(!LANGS[lang])return;state.language=lang;save();location.reload()}
+function firstLanguageCopy(lang){const c={uk:{title:'Оберіть мову',sub:'Оберіть мову інтерфейсу застосунку. Ви зможете змінити її пізніше в налаштуваннях.'},ru:{title:'Выберите язык',sub:'Выберите язык интерфейса приложения. Позже его можно изменить в настройках.'},en:{title:'Choose your language',sub:'Choose the app interface language. You can change it later in Settings.'}}[lang]||{};document.getElementById('languageGateTitle').textContent=c.title;document.getElementById('languageGateSubtitle').textContent=c.sub}
+function showLanguageGate(){const gate=document.getElementById('languageGate');if(!gate)return;gate.classList.remove('hidden');document.querySelector('.app')?.setAttribute('aria-hidden','true');firstLanguageCopy('uk')}
+function hideLanguageGate(){const gate=document.getElementById('languageGate');if(!gate)return;gate.classList.add('hidden');document.querySelector('.app')?.removeAttribute('aria-hidden')}
+function chooseFirstLanguage(lang){if(!LANGS[lang])return;state.language=lang;state.languageSelected=true;save();location.reload()}
+
+function translateDOM(){
+ const dict={
+ 'Створи обліковий запис':['Создать аккаунт','Create an account'],'Щоб користуватися застосунком, спочатку заповни дані про себе. Це займе менше хвилини.':['Чтобы пользоваться приложением, сначала заполни данные о себе. Это займёт меньше минуты.','To use the app, first fill in your details. It takes less than a minute.'],'Як до тебе звертатися':['Как к тебе обращаться','What should we call you?'],'Вага, кг':['Вес, кг','Weight, kg'],'Зріст, см':['Рост, см','Height, cm'],'Створити обліковий запис і увійти':['Создать аккаунт и войти','Create account and sign in'],
+ 'Налаштування':['Настройки','Settings'],'Обліковий запис':['Учётная запись','Account'],'Тут можна зберегти дані про себе та швидко переглянути свої показники.':['Здесь можно сохранить данные о себе и быстро посмотреть показатели.','Save your personal details and quickly view your stats.'],'Мова':['Язык','Language'],'Оберіть мову інтерфейсу застосунку.':['Выберите язык интерфейса приложения.','Choose the app interface language.'],'Українська':['Украинский','Ukrainian'],'Русский':['Русский','Russian'],'English':['Английский','English'],'Тема':['Тема','Theme'],'Зараз використовується темна тема.':['Сейчас используется тёмная тема.','Dark theme is currently enabled.'],'Зберігання':['Хранение','Storage'],'Дані облікового запису, завдання та історія зберігаються локально на цьому пристрої.':['Данные аккаунта, задания и история хранятся локально на этом устройстве.','Account data, tasks, and history are stored locally on this device.'],'Нагадування про завдання':['Напоминания о заданиях','Task reminders'],'Push-нагадування потребують інтернету. Завдання залишаються доступними офлайн після першого завантаження.':['Push-напоминания требуют интернета. Задания доступны офлайн после первой загрузки.','Push reminders require internet. Tasks remain available offline after the first load.'],'Увімкнути сповіщення':['Включить уведомления','Enable notifications'],'Вимкнено':['Выключено','Off'],'Увімкнено':['Включено','Enabled'],'Вимкнути':['Выключить','Disable'],'Скинути всі дані':['Сбросить все данные','Reset all data'],
+ 'Сьогодні':['Сегодня','Today'],'Тиждень':['Неделя','Week'],'Календар':['Календарь','Calendar'],'Аналітика':['Аналитика','Analytics'],'Щоденник':['Дневник','Journal'],'Планування':['Планирование','Planning'],'Прогрес':['Прогресс','Progress'],'Історія':['История','History'],'Сьогодні — твій день 👋':['Сегодня — твой день 👋','Today is your day 👋'],'Зроби його кращим за вчора.':['Сделай его лучше, чем вчера.','Make it better than yesterday.'],'План задач на тиждень':['План задач на неделю','Weekly task plan'],'Завдання тепер зручно планувати заздалегідь у розділі «Тиждень».':['Теперь удобно заранее планировать задания в разделе «Неделя».','Tasks are now easy to plan ahead in the “Week” section.'],'▦ Відкрити тиждень':['▦ Открыть неделю','▦ Open week'],'Обраний тиждень:':['Выбранная неделя:','Selected week:'],'Обери тиждень заздалегідь — його буде одразу відкрито в розділі «Тиждень».':['Выбери неделю заранее — она сразу откроется в разделе «Неделя».','Choose a week in advance — it will open directly in the “Week” section.'],'Попередній місяць':['Предыдущий месяц','Previous month'],'Наступний місяць':['Следующий месяц','Next month'],'Показує, як ти виконуєш завдання за днями та тижнями.':['Показывает, как ты выполняешь задания по дням и неделям.','Shows how you complete tasks by day and week.'],'‹ Попередня':['‹ Предыдущая','‹ Previous'],'Поточний тиждень':['Текущая неделя','Current week'],'Наступна ›':['Следующая ›','Next ›'],'Твоя статистика виконання завдань.':['Твоя статистика выполнения заданий.','Your task completion statistics.'],
+ 'Особистий обліковий запис':['Личный аккаунт','Personal account'],'Додай ім’я, вагу та зріст. Після збереження в налаштуваннях відображатиметься твоє ім’я.':['Добавь имя, вес и рост. После сохранения имя будет отображаться в настройках.','Add your name, weight, and height. Your name will appear in settings after saving.'],'＋ Створити обліковий запис':['＋ Создать аккаунт','＋ Create account'],'Вхід':['Вход','Sign in'],'Заповни дані один раз — вони збережуться на цьому пристрої.':['Заполни данные один раз — они сохранятся на этом устройстве.','Fill in your details once — they will be saved on this device.'],'Зберегти обліковий запис':['Сохранить аккаунт','Save account'],'Скасувати':['Отмена','Cancel'],'Зберегти':['Сохранить','Save'],
+ 'Нове завдання':['Новая задача','New task'],'Редагувати завдання':['Редактировать задание','Edit task'],'Час':['Время','Time'],'Категорія':['Категория','Category'],'Назва':['Название','Title'],'Нотатка':['Заметка','Note'],'📋 Копіювати день':['📋 Копировать день','📋 Copy day'],'Копіювати завдання з дня':['Копировать задания с дня','Copy tasks from day'],'На день':['На день','To day'],'Копіювати день':['Копировать день','Copy day'],'День, на який перенести або скопіювати':['День, на который перенести или скопировать','Day to copy or move to'],'Копіювати на день':['Копировать на день','Copy to day'],'Перенести на день':['Перенести на день','Move to day'],'Видалити завдання':['Удалить задание','Delete task'],
+ 'Тренування':['Тренировка','Workout'],'Навчання':['Учёба','Study'],'Здоров’я':['Здоровье','Health'],'Звичка':['Привычка','Habit'],'Відпочинок':['Отдых','Rest'],'Інше':['Другое','Other'],'Прогрес дня':['Прогресс дня','Daily progress'],'Серія':['Серия','Streak'],'Завдання на сьогодні':['Задания на сегодня','Tasks for today'],'На сьогодні завдань немає.':['На сегодня заданий нет.','No tasks for today.'],'Здати завдання':['Сдать задания','Submit tasks'],'✓ Завдання здано':['✓ Задания сданы','✓ Tasks submitted'],'Затисни кнопку «Завдання здано», щоб скасувати здачу.':['Зажми кнопку «Задания сданы», чтобы отменить сдачу.','Hold “Tasks submitted” to cancel submission.'],'Скасувати здачу':['Отменить сдачу','Cancel submission'],'Познач усі завдання, щоб здати їх.':['Отметь все задания, чтобы сдать их.','Mark all tasks as complete to submit them.'],'＋ Додати завдання на цей день':['＋ Добавить задание на этот день','＋ Add a task for this day'],'На цей день завдань немає. Додай завдання заздалегідь.':['На этот день заданий нет. Добавь задание заранее.','No tasks for this day. Add one in advance.'],'Обрати цей тиждень':['Выбрать эту неделю','Select this week'],'Здано':['Сдано','Submitted'],
+ 'Історія з’явиться після виконання завдань.':['История появится после выполнения заданий.','History will appear after you complete tasks.'],'виконано':['выполнено','completed'],'Поки немає пропущених завдань — так тримати! 🔥':['Пока нет пропущенных заданий — так держать! 🔥','No missed tasks yet — keep it up! 🔥'],'Додай завдання — і тут з’явиться статистика.':['Добавь задания — и здесь появится статистика.','Add tasks and statistics will appear here.'],'Натисни, щоб переглянути показники':['Нажми, чтобы посмотреть показатели','Tap to view your stats'],'Твої показники':['Твои показатели','Your stats'],'Вага':['Вес','Weight'],'Зріст':['Рост','Height'],'Редагувати':['Редактировать','Edit'],'Приховати':['Скрыть','Hide'],'Редагувати дані':['Редактировать данные','Edit details'],'Виконано':['Выполнено','Completed'],'Успішність':['Успешность','Success rate'],'за обраний тиждень':['за выбранную неделю','for the selected week'],'Найкращий день':['Лучший день','Best day'],'Здано днів':['Сдано дней','Days submitted'],'в обраному тижні':['в выбранной неделе','in the selected week'],'Категорії':['Категории','Categories'],'виконання':['выполнения','completion'],'Завдання, які найчастіше пропускають':['Задания, которые чаще всего пропускают','Most frequently missed tasks'],'Усі завдання з вибраного дня буде повністю скопійовано на інший день. Початковий день залишиться без змін.':['Все задания из выбранного дня будут полностью скопированы на другой день. Исходный день останется без изменений.','All tasks from the selected day will be copied to another day. The original day will remain unchanged.'],'У вибраному дні немає завдань':['В выбранном дне нет заданий','No tasks on the selected day'],'Пн':['Mon','Mon'],'Вт':['Tue','Tue'],'Ср':['Wed','Wed'],'Чт':['Thu','Thu'],'Пт':['Fri','Fri'],'Сб':['Sat','Sat'],'Вс':['Sun','Sun'],'Без назви':['Без названия','Untitled'],'поки немає даних':['пока нет данных','no data yet'],'із 0 завдань':['из 0 заданий','of 0 tasks'],'Обери обидва дні':['Выбери оба дня','Choose both days'],'Обери різні дні':['Выбери разные дни','Choose different days'],'Позначку знято':['Отметка снята','Mark removed']
+ };
+ const mode=state.language==='ru'?0:state.language==='en'?1:null;
+ const walk=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;while(n=walk.nextNode()){const raw=n.nodeValue.trim();if(!raw)continue;const v=dict[raw];if(v&&mode!==null)n.nodeValue=n.nodeValue.replace(raw,v[mode]);}
+ document.querySelectorAll('[placeholder]').forEach(el=>{const p=el.getAttribute('placeholder');const vals={'Наприклад, Діма':['Например, Дима','For example, Dima'],'Наприклад, тренування':['Например, тренировка','For example, workout'],'Додаткова інформація':['Дополнительная информация','Additional information']};if(vals[p]&&mode!==null)el.placeholder=vals[p][mode]});
+ document.querySelectorAll('[aria-label]').forEach(el=>{const a=el.getAttribute('aria-label');const vals={'Налаштування':['Настройки','Settings'],'Попередній місяць':['Предыдущий месяц','Previous month'],'Наступний місяць':['Следующий месяц','Next month']};if(vals[a]&&mode!==null)el.setAttribute('aria-label',vals[a][mode]);});
+ document.querySelectorAll('[title]').forEach(el=>{if(el.title==='Обрати цей тиждень'&&mode!==null)el.title=mode===0?'Выбрать эту неделю':'Select this week'});
+ const sel=document.getElementById('languageSelect');if(sel)sel.value=state.language;document.documentElement.lang=state.language;
+}
+
+
+function save(){localStorage.setItem(KEY,JSON.stringify(state)); if(window.__pushReady) syncPushTasks()}
+window.addEventListener('online',()=>{if(window.__pushReady)syncPushTasks()});
+function tasksFor(date=todayKey()){return state.days[date]||[]}
+function fmtDate(d){return trDate(d,{day:'numeric',month:'long',weekday:'long'})}
+function dateObj(k){const [y,m,d]=k.split('-').map(Number);return new Date(Date.UTC(y,m-1,d,12))}
+function keyFromDate(d){return d.toISOString().slice(0,10)}
+function weekStart(k){const d=dateObj(k), day=(d.getUTCDay()+6)%7;d.setUTCDate(d.getUTCDate()-day);return keyFromDate(d)}
+function addDays(k,n){const d=dateObj(k);d.setUTCDate(d.getUTCDate()+n);return keyFromDate(d)}
+function monthKeyShift(k,n){const [y,m]=k.split('-').map(Number);const d=new Date(Date.UTC(y,m-1+n,1,12));return d.toISOString().slice(0,7)}
+function weekLabel(k){const end=addDays(k,6);return `${trDate(k,{day:'numeric',month:'long'})} — ${trDate(end,{day:'numeric',month:'long',year:'numeric'})}`}
+function isoWeek(k){const d=dateObj(k);const th=new Date(d);th.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7)+3);const firstThu=new Date(Date.UTC(th.getUTCFullYear(),0,4,12));return 1+Math.round((th-firstThu)/604800000)}
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function categoryLabel(v){const m={uk:{'Тренування':'Тренування','Навчання':'Навчання','Здоров’я':'Здоров’я','Звичка':'Звичка','Відпочинок':'Відпочинок','Інше':'Інше'},ru:{'Тренування':'Тренировка','Навчання':'Учёба','Здоров’я':'Здоровье','Звичка':'Привычка','Відпочинок':'Отдых','Інше':'Другое'},en:{'Тренування':'Workout','Навчання':'Study','Здоров’я':'Health','Звичка':'Habit','Відпочинок':'Rest','Інше':'Other'}};return m[state.language]?.[v]||v||t('Інше','Другое','Other')}
+
+let editingId=null;
+let editingDate=todayKey();
+let selectedDate=todayKey();
+let selectedWeekStart=weekStart(todayKey());
+let calendarMonth=todayKey().slice(0,7);
+let dragId=null;
+
+function taskWord(n){if(state.language==='en')return n===1?'task':'tasks';if(state.language==='ru')return n%10===1&&n%100!==11?'задание':n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?'задания':'заданий';return n===1?'завдання':n<5?'завдання':'завдань'}
+
+function renderToday(){
+ const k=todayKey(), ts=tasksFor(k), done=ts.filter(x=>x.done).length, pct=ts.length?Math.round(done/ts.length*100):0, submitted=!!state.submitted[k], canSubmit=ts.length>0&&done===ts.length;
+ document.getElementById('todayDate').textContent=fmtDate(k);
+ const stats=document.getElementById('todayStats');
+ stats.innerHTML=`<div class="card progress-card"><div class="ring" id="ring"><b id="percent">${pct}%</b></div><div><div class="stat-title">Прогрес дня</div><div class="stat-value" id="count">${done} ${t('із','из','of')} ${ts.length}</div></div></div><div class="card streak"><div class="fire">🔥</div><div><div class="stat-title">Серія</div><div class="stat-value" id="streak">${state.streak||0} ${state.language==='en'?(state.streak===1?'day':'days'):state.language==='ru'?(state.streak%10===1&&state.streak%100!==11?'день':state.streak%10>=2&&state.streak%10<=4&&(state.streak%100<10||state.streak%100>=20)?'дня':'дней'):(state.streak===1?'день':'днів')}</div></div></div>`;
+ document.getElementById('percent').textContent=pct+'%'; document.getElementById('ring').style.setProperty('--p',pct+'%');
+ let box=document.getElementById('todayTasks');
+ if(!box){ box=document.createElement('div'); box.id='todayTasks'; box.className='card'; box.style='margin-top:18px;padding:10px'; stats.after(box); }
+ const submitHtml=ts.length?`<div class="submit-wrap"><button class="submit-btn ${submitted?'submitted':''}" id="submitTasks" ${!submitted&&!canSubmit?'disabled':''}>${submitted?'✓ Завдання здано':'Здати завдання'}</button>${submitted?'<div class="submit-hint">Затисни кнопку «Завдання здано», щоб скасувати здачу.</div><button class="cancel-submit" id="cancelSubmit" style="display:none">Скасувати здачу</button>':(!canSubmit?'<div class="submit-hint">Познач усі завдання, щоб здати їх.</div>':'')}</div>`:'';
+ box.innerHTML=`<div class="section-title" style="margin-top:0"><span>Завдання на сьогодні</span><span class="small">${ts.length} ${taskWord(ts.length)}</span></div>` + (ts.length?ts.map(t=>`<div class="task ${t.done?'done':''}" data-today-task="${t.id}" draggable="true"><div class="drag-handle">☷</div><div class="task-time">${esc(t.time)}</div><div class="task-main"><div class="task-name">${esc(t.title)}</div><div class="task-meta">${esc(categoryLabel(t.category))}${t.note?' · '+esc(t.note):''}</div></div><button class="check" data-today-toggle="${t.id}">${t.done?'✓':'○'}</button></div>`).join(''):'<div class="empty">На сьогодні завдань немає.</div>')+submitHtml;
+ box.querySelectorAll('[data-today-toggle]').forEach(b=>b.onclick=()=>toggle(b.dataset.todayToggle));
+ box.querySelectorAll('[data-today-task]').forEach(el=>{el.addEventListener('click',e=>{if(e.target.closest('button'))return;openModal(el.dataset.todayTask,k)});el.addEventListener('dragstart',()=>dragId=el.dataset.todayTask);el.addEventListener('dragover',e=>e.preventDefault());el.addEventListener('drop',e=>{e.preventDefault();if(dragId&&dragId!==el.dataset.todayTask)reorderToday(dragId,el.dataset.todayTask)})});
+ if(submitted){setupSubmitHold();}else if(canSubmit){document.getElementById('submitTasks').onclick=()=>submitToday();}
+}
+function submitToday(){const k=todayKey(),ts=tasksFor(k);if(!ts.length||!ts.every(x=>x.done))return;state.submitted[k]=true;save();renderAll();toast('Завдання здано ✓')}
+function setupSubmitHold(){const btn=document.getElementById('submitTasks'),cancel=document.getElementById('cancelSubmit');if(!btn||!cancel)return;let timer=null;const start=()=>{clearTimeout(timer);timer=setTimeout(()=>{cancel.style.display='block';toast('Тепер можна скасувати здачу')},900)};const stop=()=>clearTimeout(timer);['mousedown','touchstart'].forEach(e=>btn.addEventListener(e,start,{passive:true}));['mouseup','mouseleave','touchend','touchcancel'].forEach(e=>btn.addEventListener(e,stop));cancel.onclick=()=>{delete state.submitted[todayKey()];save();renderToday();toast('Здачу скасовано')}}
+function reorderToday(a,b){let arr=tasksFor(todayKey()),ai=arr.findIndex(x=>x.id===a),bi=arr.findIndex(x=>x.id===b);if(ai<0||bi<0)return;const [item]=arr.splice(ai,1);arr.splice(bi,0,item);state.days[todayKey()]=arr;save();renderToday();toast('Порядок збережено')}
+
+function toggle(id){if(state.submitted[todayKey()]){toast('Спочатку скасуй здачу завдань');return}let t=tasksFor().find(x=>x.id===id);if(!t)return;t.done=!t.done;save();renderAll();toast(t.done?'Завдання виконано':'Завдання знову активне')}
+function reorder(a,b){let arr=tasksFor();let ai=arr.findIndex(x=>x.id===a),bi=arr.findIndex(x=>x.id===b);if(ai<0||bi<0)return;const [item]=arr.splice(ai,1);arr.splice(bi,0,item);state.days[todayKey()]=arr;save();renderToday();toast('Порядок збережено')}
+function openModal(id=null,date=todayKey()){
+ editingId=id; editingDate=date; document.getElementById('modal').classList.add('open');
+ document.getElementById('modalTitle').textContent=id?t('Редагувати завдання','Редактировать задание','Edit task'):t('Нове завдання','Новая задача','New task');
+ document.getElementById('deleteTask').style.display=id?'block':'none';
+ document.getElementById('taskMoveTools').style.display=id?'block':'none';
+ document.getElementById('copyDayTools').style.display='block';
+ document.getElementById('copyDayPanel').style.display='none';
+ document.getElementById('copySourceDate').value=editingDate;
+ document.getElementById('copyTargetDate').value='';
+ document.getElementById('moveDate').value=editingDate;
+ const t=id?tasksFor(editingDate).find(x=>x.id===id):null;
+ document.getElementById('fTime').value=t?.time||'18:00';document.getElementById('fTitle').value=t?.title||'';document.getElementById('fCategory').value=t?.category||'Тренування';document.getElementById('fNote').value=t?.note||'';
+ setTimeout(()=>document.getElementById('fTitle').focus(),50);
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');editingId=null}
+function setProfile(name,weight,height){state.profile={name:name.trim(),weight:Number(weight),height:Number(height)};save();document.getElementById('authGate').classList.add('hidden');renderAll()}
+document.getElementById('gateProfileForm').onsubmit=e=>{e.preventDefault();if(!gName.value.trim()||!gWeight.value||!gHeight.value)return;setProfile(gName.value,gWeight.value,gHeight.value);toast('Обліковий запис створено')};
+document.getElementById('profileForm').onsubmit=e=>{e.preventDefault();const name=pName.value.trim();if(!name)return;state.profile={name,weight:pWeight.value?Number(pWeight.value):null,height:pHeight.value?Number(pHeight.value):null};save();closeProfileModal();renderSettings();toast('Дані облікового запису збережено')};
+document.getElementById('closeProfileModal').onclick=closeProfileModal;document.getElementById('profileModal').onclick=e=>{if(e.target.id==='profileModal')closeProfileModal()};
+
+document.getElementById('taskForm').onsubmit=e=>{e.preventDefault();let arr=tasksFor(editingDate);let obj={id:editingId||crypto.randomUUID(),time:fTime.value,title:fTitle.value.trim(),category:fCategory.value,note:fNote.value.trim(),done:false};if(editingId){const old=arr.find(x=>x.id===editingId);obj.done=old?.done||false;arr[arr.findIndex(x=>x.id===editingId)]=obj}else arr.push(obj);arr.sort((a,b)=>a.time.localeCompare(b.time));state.days[editingDate]=arr;save();closeModal();renderAll();toast(editingId?'Змінено':'Завдання додано')};
+document.getElementById('deleteTask').onclick=()=>{state.days[editingDate]=tasksFor(editingDate).filter(x=>x.id!==editingId);save();closeModal();renderAll();toast('Завдання видалено')};
+function duplicateTask(toDate,move=false){
+  if(!editingId)return;
+  const source=tasksFor(editingDate);
+  const task=source.find(x=>x.id===editingId);
+  if(!task||!toDate)return;
+  if(toDate===editingDate){toast('Обери інший день');return;}
+  const copy={...task,id:crypto.randomUUID(),done:false};
+  state.days[toDate]=tasksFor(toDate).concat(copy).sort((a,b)=>a.time.localeCompare(b.time));
+  delete state.submitted[toDate];
+  if(move){
+    state.days[editingDate]=source.filter(x=>x.id!==editingId);
+    delete state.submitted[editingDate];
+  }
+  save();closeModal();renderAll();toast(move?'Завдання перенесено ✓':'Завдання скопійовано ✓');
+}
+document.getElementById('openCopyDay').onclick=()=>{document.getElementById('copyDayPanel').style.display='block';document.getElementById('copySourceDate').value=editingDate;};
+document.getElementById('cancelCopyDay').onclick=()=>document.getElementById('copyDayPanel').style.display='none';
+document.getElementById('copyDayBtn').onclick=()=>{
+ const from=document.getElementById('copySourceDate').value, to=document.getElementById('copyTargetDate').value;
+ if(!from||!to){toast(t('Обери обидва дні','Выбери оба дня','Choose both days'));return;}
+ if(from===to){toast(t('Обери різні дні','Выбери разные дни','Choose different days'));return;}
+ const source=tasksFor(from);
+ if(!source.length){toast('У вибраному дні немає завдань');return;}
+ const copies=source.map(t=>({...t,id:crypto.randomUUID(),done:false}));
+ state.days[to]=copies;
+ delete state.submitted[to];
+ save(); closeModal(); renderAll(); toast(`Скопійовано завдань: ${copies.length} ✓`);
+};
+document.getElementById('copyTaskBtn').onclick=()=>duplicateTask(document.getElementById('moveDate').value,false);
+document.getElementById('moveTaskBtn').onclick=()=>duplicateTask(document.getElementById('moveDate').value,true);
+document.getElementById('closeModal').onclick=closeModal;document.getElementById('modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
+document.getElementById('openSettingsTop').onclick=()=>{
+  document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));
+  document.querySelector('[data-view="settings"]')?.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('settings').classList.add('active');
+  renderAll();
+};
+document.getElementById('addWeekTask').onclick=()=>openModal(null,selectedDate);
+document.getElementById('openWeekFromToday').onclick=()=>{document.querySelector('[data-view=\"week\"]')?.click();};
+
+function renderWeek(){
+ const base=selectedWeekStart;
+ document.getElementById('weekRange').textContent=weekLabel(base);
+ const wd=document.getElementById('weekDays');wd.innerHTML='';
+ for(let i=0;i<7;i++){
+   const k=addDays(base,i), d=dateObj(k), ts=tasksFor(k), done=ts.filter(x=>x.done).length;
+   let el=document.createElement('button');el.className='day '+(state.submitted[k]?'submitted ':'')+(k===selectedDate?'sel':'');
+   el.innerHTML=`<strong>${trWeekday(k)}</strong><span>${d.getUTCDate()} · ${done}/${ts.length}</span>`;
+   el.onclick=()=>{selectedDate=k;renderWeek()};wd.appendChild(el)
+ }
+ const ts=tasksFor(selectedDate);document.getElementById('selectedDayTitle').textContent=fmtDate(selectedDate);document.getElementById('selectedDayProgress').textContent=ts.length?`${ts.filter(x=>x.done).length} / ${ts.length}`:'Немає завдань';
+ const box=document.getElementById('weekTasks');
+ box.innerHTML=ts.length?ts.map(t=>`<div class="weektask" draggable="true" data-week-id="${t.id}"><span class="drag-handle">⠿</span><i class="dot"></i><div style="flex:1;cursor:pointer" data-week-edit="${t.id}"><b>${esc(t.title)}</b><div class="small">${esc(t.time)} · ${esc(categoryLabel(t.category))}${t.note?' · '+esc(t.note):''}</div></div><button class="mini-btn ${t.done?'done':''}" data-week-done="${t.id}">${t.done?'✓':'○'}</button></div>`).join(''):'<div class="empty">На цей день завдань немає. Додай завдання заздалегідь.</div>';
+ box.querySelectorAll('[data-week-edit]').forEach(e=>e.onclick=()=>openModal(e.dataset.weekEdit,selectedDate));
+ box.querySelectorAll('[data-week-done]').forEach(b=>b.onclick=()=>{let t=tasksFor(selectedDate).find(x=>x.id===b.dataset.weekDone);if(t){t.done=!t.done;state.days[selectedDate]=tasksFor(selectedDate);save();renderWeek();toast(t.done?'Завдання виконано':'Позначку знято')}});
+ box.querySelectorAll('[data-week-id]').forEach(el=>{
+   el.addEventListener('dragstart',()=>{dragId=el.dataset.weekId;el.classList.add('dragging')});
+   el.addEventListener('dragend',()=>{dragId=null;el.classList.remove('dragging');box.querySelectorAll('.over').forEach(x=>x.classList.remove('over'))});
+   el.addEventListener('dragover',e=>{e.preventDefault();if(el.dataset.weekId!==dragId)el.classList.add('over')});
+   el.addEventListener('dragleave',()=>el.classList.remove('over'));
+   el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('over');reorderWeek(dragId,el.dataset.weekId)});
+ });
+}
+function reorderWeek(a,b){let arr=tasksFor(selectedDate),ai=arr.findIndex(x=>x.id===a),bi=arr.findIndex(x=>x.id===b);if(ai<0||bi<0)return;const [item]=arr.splice(ai,1);arr.splice(bi,0,item);state.days[selectedDate]=arr;save();renderWeek();toast('Порядок збережено')}
+function renderCalendar(){
+ const [y,m]=calendarMonth.split('-').map(Number), first=new Date(Date.UTC(y,m-1,1,12)), offset=(first.getUTCDay()+6)%7;
+ document.getElementById('calendarMonthTitle').textContent=new Intl.DateTimeFormat(LANGS[state.language],{month:'long',year:'numeric',timeZone:'UTC'}).format(first);
+ const grid=document.getElementById('calendarGrid');grid.innerHTML='';
+ const firstWeekStart=keyFromDate(new Date(Date.UTC(y,m-1,1-offset,12)));
+ for(let w=0;w<6;w++){
+   const ws=addDays(firstWeekStart,w*7), row=document.createElement('div');row.className='calendar-week '+(ws===selectedWeekStart?'selected':'');
+   const wn=document.createElement('button');wn.type='button';wn.className='week-num';wn.textContent=isoWeek(ws);
+   wn.title='Обрати цей тиждень';wn.onclick=()=>selectCalendarWeek(ws);row.appendChild(wn);
+   for(let i=0;i<7;i++){
+     const k=addDays(ws,i), d=dateObj(k), cell=document.createElement('button');cell.type='button';cell.className='cal-day '+(k.slice(0,7)!==calendarMonth?'muted ':'')+(state.submitted[k]?'submitted ':'')+(k===todayKey()?'today ':'')+(k===selectedDate?'selected':'');
+     const count=tasksFor(k).length;
+     cell.innerHTML=`<strong>${d.getUTCDate()}</strong><span>${state.submitted[k]?'✓ '+t('Здано','Сдано','Submitted'):(count?count+' '+taskWord(count):' ')}</span>`;
+     cell.onclick=()=>{selectedDate=k;selectCalendarWeek(weekStart(k),true)};
+     row.appendChild(cell);
+   }
+   row.addEventListener('click',e=>{if(e.target.closest('.cal-day'))return;selectCalendarWeek(ws)});
+   grid.appendChild(row);
+ }
+ document.getElementById('calendarSelectedWeek').textContent='Обраний тиждень: '+weekLabel(selectedWeekStart);
+}
+function selectCalendarWeek(ws,navigate=true){selectedWeekStart=ws;selectedDate=ws;renderCalendar();if(navigate){document.querySelector('[data-view="week"]')?.click();}}
+function renderJournal(){
+ let dates=Object.keys(state.days).sort().reverse().slice(0,14);let card=document.getElementById('journalCard');
+ if(!dates.length){card.innerHTML='<div class="empty">Історія з’явиться після виконання завдань.</div>';return}
+ card.innerHTML=dates.map(k=>{let ts=tasksFor(k),d=ts.filter(x=>x.done).length,p=ts.length?Math.round(d/ts.length*100):0;return `<div class="journal-row"><div><b>${esc(fmtDate(k))}</b><div class="small">${d} ${t('із','из','of')} ${ts.length} ${taskWord(ts.length)}</div><div class="bar" style="width:180px"><i style="width:${p}%"></i></div></div><b>${p}%</b></div>`}).join('');
+}
+function analyticsData(start){
+ const dates=Array.from({length:7},(_,i)=>addDays(start,i));
+ const rows=dates.map(k=>{const ts=tasksFor(k);const done=ts.filter(x=>x.done).length;return {k,ts,done,pct:ts.length?Math.round(done/ts.length*100):0}});
+ return {dates,rows,total:rows.reduce((a,r)=>a+r.ts.length,0),done:rows.reduce((a,r)=>a+r.done,0)};
+}
+function renderAnalytics(){
+ const start=selectedWeekStart, data=analyticsData(start), pct=data.total?Math.round(data.done/data.total*100):0;
+ document.getElementById('analyticsWeekTitle').textContent=weekLabel(start);
+ document.getElementById('analyticsWeekPercent').textContent=pct+'%';
+ document.getElementById('analyticsDone').textContent=data.done;
+ document.getElementById('analyticsDoneHint').textContent=t('із','из','of')+' '+data.total+' '+taskWord(data.total);
+ document.getElementById('analyticsPercent').textContent=pct+'%';
+ const submitted=data.rows.filter(r=>!!state.submitted[r.k]).length;
+ document.getElementById('analyticsSubmitted').textContent=submitted;
+ const best=data.rows.reduce((a,r)=>r.done>a.done?r:a,{done:-1});
+ document.getElementById('analyticsBestDay').textContent=best.done>0?best.done+' '+taskWord(best.done):'—';
+ document.getElementById('analyticsBestDayHint').textContent=best.done>0?fmtDate(best.k):t('поки немає даних','пока нет данных','no data yet');
+ document.getElementById('analyticsChart').innerHTML=data.rows.map(r=>{const label=trWeekday(r.k);const h=r.ts.length?Math.max(5,r.pct):3;return `<div class="analytics-col"><div class="analytics-bar-wrap"><div class="analytics-bar" style="height:${h}%" title="${r.done} ${t('із','из','of')} ${r.ts.length} ${taskWord(r.ts.length)}"></div></div><b>${r.pct}%</b><span>${label}</span></div>`}).join('');
+ const cats={};
+ data.rows.forEach(r=>r.ts.forEach(t=>{const c=categoryLabel(t.category);if(!cats[c])cats[c]={total:0,done:0};cats[c].total++;if(t.done)cats[c].done++}));
+ const catEntries=Object.entries(cats).sort((a,b)=>(b[1].done/b[1].total)-(a[1].done/a[1].total));
+ document.getElementById('analyticsCategories').innerHTML=catEntries.length?catEntries.map(([name,v])=>{const p=Math.round(v.done/v.total*100);return `<div class="analytics-row"><div><div class="name">${esc(name)}</div><div class="sub">${v.done} ${t('із','из','of')} ${v.total} ${t('виконано','выполнено','completed')}</div><div class="bar"><i style="width:${p}%"></i></div></div><div class="value">${p}%</div></div>`}).join(''):'<div class="analytics-empty">Додай завдання — і тут з’явиться статистика.</div>';
+ const missed={};
+ Object.keys(state.days).forEach(k=>{state.days[k].forEach(t=>{if(!t.done){const key=(t.title||'Без назви').trim();if(!missed[key])missed[key]={miss:0,total:0};missed[key].miss++;missed[key].total++;}else{const key=(t.title||'Без назви').trim();if(!missed[key])missed[key]={miss:0,total:0};missed[key].total++;}})});
+ const missedEntries=Object.entries(missed).filter(([,v])=>v.miss>0).sort((a,b)=>b[1].miss-a[1].miss).slice(0,5);
+ document.getElementById('analyticsMissed').innerHTML=missedEntries.length?missedEntries.map(([name,v])=>`<div class="analytics-row"><div><div class="name">${esc(name)}</div><div class="sub">${t('Пропущено','Пропущено','Missed')} ${v.miss} ${t('разів','раз','times')} · ${t('усього','всего','total')} ${v.total}</div></div><div class="value">${Math.round(v.miss/v.total*100)}%</div></div>`).join(''):'<div class="analytics-empty">Поки немає пропущених завдань — так тримати! 🔥</div>';
+}
+function profileInitial(name){return (name||'?').trim().charAt(0).toUpperCase()}
+function openProfileModal(edit=false){
+ const p=state.profile||{};document.getElementById('profileModal').classList.add('open');
+ document.getElementById('profileModalTitle').textContent=edit?t('Редагувати дані','Редактировать данные','Edit details'):t('Вхід','Вход','Sign in');
+ document.getElementById('pName').value=p.name||'';document.getElementById('pWeight').value=p.weight??'';document.getElementById('pHeight').value=p.height??'';
+ setTimeout(()=>document.getElementById('pName').focus(),50)
+}
+function closeProfileModal(){document.getElementById('profileModal').classList.remove('open')}
+function renderSettings(){
+ const box=document.getElementById('profileCard');const p=state.profile;
+ if(!p){box.innerHTML=`<div class="settings-item" style="padding-top:0"><label>Особистий обліковий запис</label><p>Додай ім’я, вагу та зріст. Після збереження в налаштуваннях відображатиметься твоє ім’я.</p></div><button class="add" id="openProfileSetup">＋ Створити обліковий запис</button>`;document.getElementById('openProfileSetup').onclick=()=>openProfileModal();return}
+ box.innerHTML=`<div class="profile-card" id="openProfileDetails"><div class="profile-avatar">${esc(profileInitial(p.name))}</div><div class="profile-info"><div class="profile-name">${esc(p.name)}</div><div class="profile-sub">Натисни, щоб переглянути показники</div></div><div class="profile-arrow">›</div></div>`;
+ document.getElementById('openProfileDetails').onclick=()=>{
+   box.innerHTML=`<div class="profile-card" id="closeProfileDetails"><div class="profile-avatar">${esc(profileInitial(p.name))}</div><div class="profile-info"><div class="profile-name">${esc(p.name)}</div><div class="profile-sub">Твої показники</div></div><div class="profile-arrow">⌃</div></div><div class="profile-details"><div class="profile-stat"><b>${p.weight?esc(String(p.weight))+' кг':'—'}</b><span>Вага</span></div><div class="profile-stat"><b>${p.height?esc(String(p.height))+' см':'—'}</b><span>Зріст</span></div></div><div class="profile-actions"><button class="secondary" id="editProfile">Редагувати</button><button class="secondary" id="hideProfile">Приховати</button></div>`;
+   document.getElementById('editProfile').onclick=()=>openProfileModal(true);document.getElementById('hideProfile').onclick=renderSettings;document.getElementById('closeProfileDetails').onclick=renderSettings;
+ };
+}
+function renderAll(){renderToday();renderWeek();renderCalendar();renderAnalytics();renderJournal();renderSettings();translateDOM();bindLanguageSelect();renderNotificationSettings()}
+function bindLanguageSelect(){const sel=document.getElementById('languageSelect');if(sel&&!sel.dataset.ready){sel.dataset.ready='1';sel.onchange=()=>setLanguage(sel.value)}}
+document.getElementById('prevMonth').onclick=()=>{calendarMonth=monthKeyShift(calendarMonth,-1);renderCalendar()};
+document.getElementById('nextMonth').onclick=()=>{calendarMonth=monthKeyShift(calendarMonth,1);renderCalendar()};
+document.getElementById('analyticsWeekPrev').onclick=()=>{selectedWeekStart=addDays(selectedWeekStart,-7);renderAnalytics()};
+document.getElementById('analyticsWeekNext').onclick=()=>{selectedWeekStart=addDays(selectedWeekStart,7);renderAnalytics()};
+document.getElementById('analyticsWeekCurrent').onclick=()=>{selectedWeekStart=weekStart(todayKey());renderAnalytics()};
+function toast(s){let t=document.getElementById('toast');t.textContent=s;t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),1600)}
+document.querySelectorAll('.nav').forEach(n=>n.onclick=()=>{const target=document.getElementById(n.dataset.view); if(!target)return; document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));n.classList.add('active');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));requestAnimationFrame(()=>target.classList.add('active'));renderAll()});
+document.getElementById('reset').onclick=()=>{if(confirm('Видалити всі завдання та історію?')){localStorage.removeItem(KEY);location.reload()}};
+document.querySelectorAll('[data-first-language]').forEach(btn=>{btn.onclick=()=>chooseFirstLanguage(btn.dataset.firstLanguage)});
+renderAll();
+if(!state.languageSelected){showLanguageGate()}
+if(!state.profile){document.getElementById('authGate').classList.remove('hidden');setTimeout(()=>document.getElementById('gName').focus(),50)}else{document.getElementById('authGate').classList.add('hidden')}
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then(()=>{window.__pushReady=true;syncPushTasks();renderNotificationSettings()}).catch(()=>{});
+</script>
+</body></html>
